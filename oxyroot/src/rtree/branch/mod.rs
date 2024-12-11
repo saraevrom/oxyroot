@@ -92,6 +92,14 @@ impl Branch {
         }
     }
 
+    /// C++ type contained in this branch. Complete version for custom unmarshallers
+    pub fn item_type_name_complete(&self) -> String {
+        match self {
+            Branch::Base(bb) => bb.item_type_name_complete(),
+            Branch::Element(be) => be.item_type_name_complete(),
+        }
+    }
+
     /// Rust equivalent of C++ type returned by [`item_type_name`](crate::Branch::item_type_name)
     pub fn interpretation(&self) -> String {
         type_name_cpp_to_rust(self.item_type_name().as_str())
@@ -270,6 +278,13 @@ impl Branch {
         T: UnmarshalerInto<Item = T> + 'a,
     {
         self.get_basket(|r| r.read_object_into::<T>().unwrap())
+    }
+
+    pub fn as_iter_manual<'a, T>(&'a self) -> impl Iterator<Item = T> + 'a
+    where
+        T: UnmarshalerInto<Item = T> + 'a,
+    {
+        self.get_basket(|r| r.read_object_into_with_name::<T>(&self.item_type_name_complete()).unwrap())
     }
 
     pub(crate) fn _streamer_type(&self) -> Option<i32> {

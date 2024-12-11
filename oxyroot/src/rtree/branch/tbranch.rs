@@ -277,6 +277,53 @@ impl TBranch {
         self.entries
     }
 
+    pub fn item_type_name_complete(&self) -> String {
+        let unknown = "unknown";
+        if self.leaves.len() == 1 {
+            let leaf = self.leaves.first().unwrap();
+            trace!("leaf = {:?}", leaf);
+            lazy_static! {
+                static ref RE_TITLE_HAS_DIMS: Regex =
+                    Regex::new(r"^([^\[\]]*)(\[[^\[\]]+\])+").unwrap();
+                static ref RE_ITEM_DIM_PATTERN: Regex = Regex::new(r"(\[[1-9][0-9]*\])+").unwrap();
+            }
+
+            let m = RE_TITLE_HAS_DIMS.captures(leaf.title());
+            trace!("RE_TITLE_HAS_DIMS = {:?}", m);
+
+            let dim = if m.is_some() {
+                if let Some(m) = RE_ITEM_DIM_PATTERN.captures(leaf.title()) {
+                    trace!("m = {:?}", m);
+                    let dim: &str = m.get(0).unwrap().as_str();
+                    Some(dim)
+                } else {
+                    Some("")
+                }
+            } else {
+                None
+            };
+
+            match leaf.type_name() {
+                Some(s) => match dim {
+                    None => {
+                        return s.to_string();
+                    }
+                    Some(dim) => {
+                        if !dim.is_empty() {
+                            return format!("{}{}", s, dim);
+                        } else {
+                            return format!("{}[]", s);
+                        }
+                    }
+                },
+                None => panic!("can not be here"),
+            };
+
+        }
+        unknown.to_string()
+
+    }
+
     pub fn item_type_name(&self) -> String {
         let unknown = "unknown";
 

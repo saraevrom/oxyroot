@@ -56,6 +56,10 @@ pub trait StreamerInfoContext {
 pub trait Unmarshaler {
     fn unmarshal(&mut self, r: &mut RBuffer) -> Result<()>;
 
+    fn unmarshal_named(&mut self, r: &mut RBuffer, actual_name:&str) -> Result<()>{
+        self.unmarshal(r)
+    }
+
     /// Returns the kind of the type as C++ typename. Used to check if the type is supported.
     fn class_name() -> Option<Vec<String>>
     where
@@ -483,6 +487,7 @@ where
 pub trait UnmarshalerInto {
     type Item: Default + Unmarshaler;
     fn unmarshal_into(r: &mut RBuffer) -> Result<Self::Item>;
+    fn unmarshal_into_with_name(r: &mut RBuffer, actual_name:&str) -> Result<Self::Item>;
     fn classe_name() -> Option<Vec<String>>;
 }
 
@@ -495,6 +500,12 @@ where
     fn unmarshal_into(r: &mut RBuffer) -> Result<Self::Item> {
         let mut a: Self::Item = Self::Item::default();
         Unmarshaler::unmarshal(&mut a, r)?;
+        Ok(a)
+    }
+
+    fn unmarshal_into_with_name(r: &mut RBuffer, actual_name:&str) -> Result<Self::Item>{
+        let mut a: Self::Item = Self::Item::default();
+        Unmarshaler::unmarshal_named(&mut a, r,actual_name)?;
         Ok(a)
     }
 

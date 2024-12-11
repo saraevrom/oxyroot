@@ -97,6 +97,100 @@ impl TBranchElement {
         element
     }
 
+    pub fn item_type_name_complete(&self) -> String {
+        if !self.branch.branches().is_empty() {
+            if let Some(true) = self.is_top_level() {
+                if !self.class_name.is_empty() {
+                    return self.class_name.to_string();
+                } else {
+                    todo!()
+                }
+            } else {
+                match self.streamer() {
+                    None => {
+                        todo!()
+                    }
+                    Some(streamer) => {
+                        return streamer.name().into();
+                        // trace!("current streamer = {:?}", streamer);
+                    }
+                }
+            }
+        } else if self.branch.leaves.len() == 1 {
+            let leave = self.branch.leaves.first().unwrap();
+            trace!("leave = {:?}", leave);
+            lazy_static! {
+                static ref RE_TITLE_HAS_DIMS: Regex =
+                    Regex::new(r"^([^\[\]]*)(\[[^\[\]]+\])+").unwrap();
+                static ref RE_ITEM_DIM_PATTERN: Regex = Regex::new(r"(\[[1-9][0-9]*\])+").unwrap();
+            }
+
+            let m = RE_TITLE_HAS_DIMS.captures(leave.title());
+            trace!("RE_TITLE_HAS_DIMS = {:?}", m);
+
+            let dim = if m.is_some() {
+                if let Some(m) = RE_ITEM_DIM_PATTERN.captures(leave.title()) {
+                    trace!("m = {:?}", m);
+                    let dim: &str = m.get(0).unwrap().as_str();
+                    Some(dim)
+                } else {
+                    Some("")
+                }
+            } else {
+                None
+            };
+
+            return match leave.type_name() {
+                Some(t) => t.into(),
+                None => match leave {
+                    Leaf::Base(_) => {
+                        todo!()
+                    }
+                    Leaf::Element(leave) => {
+                        let leaftype = leave.ltype;
+                        if let Some(s) = _from_leaftype_to_str(leaftype) {
+                            trace!("dim = {:?}", dim);
+                            match dim {
+                                None => {}
+                                Some(dim) => {
+                                    if !dim.is_empty() {
+                                        return format!("{}[{}]", s, dim);
+                                    } else {
+                                        return format!("{}[]", s);
+                                    }
+                                }
+                            }
+                            return s.into();
+                        }
+
+                        if self.streamer_type() == EReadWrite::TString.to_i32() {
+                            return "TString".to_string();
+                        }
+
+                        if self.streamer_type() == EReadWrite::Stl || self.streamer_type() == -1 {
+                            match self.streamer() {
+                                None => {
+                                    return clean_type_name(self.class_name());
+                                }
+                                Some(s) => {
+                                    return clean_type_name(s.item_type_name());
+                                }
+                            }
+                        }
+
+                        todo!()
+                    }
+                    _ => {
+                        panic!("Impossible to leaf like that");
+                    }
+                },
+            };
+        }
+
+        self.branch.item_type_name_complete()
+
+    }
+
     pub fn item_type_name(&self) -> String {
         self._item_type_name()
         // if self.props.borrow().item_type_name.is_none() {

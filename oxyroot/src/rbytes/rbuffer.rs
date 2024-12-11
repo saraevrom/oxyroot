@@ -257,6 +257,12 @@ impl<'a> RBuffer<'a> {
         T::unmarshal_into(self)
     }
 
+    pub fn read_object_into_with_name<T: UnmarshalerInto<Item = T>>(&mut self, actual_name:&str) -> Result<T> {
+        // trace!("pos = {} buf = {:?}", self.pos(), self.r.p);
+        // trace!("vbuf = {:?}", self.r.visible_buffer());
+        T::unmarshal_into_with_name(self,actual_name)
+    }
+
     pub(crate) fn read_object<T: Unmarshaler>(&mut self, obj: &mut T) -> Result<()> {
         obj.unmarshal(self)
     }

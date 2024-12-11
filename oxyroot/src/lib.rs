@@ -186,7 +186,7 @@ mod error;
 mod gen_factory;
 pub mod rbase;
 
-mod rbytes;
+pub mod rbytes;
 mod rcolors;
 mod rcompress;
 pub mod rcont;

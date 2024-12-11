@@ -9,7 +9,7 @@ use std::fmt::Debug;
 use std::hash::Hash;
 
 pub mod consts;
-mod error;
+pub mod error;
 pub mod rbuffer;
 pub mod wbuffer;
 

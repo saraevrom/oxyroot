@@ -100,6 +100,13 @@ impl Branch {
         }
     }
 
+    pub fn title(&self)->&str{
+        match self {
+            Branch::Base(bb) => bb.title(),
+            Branch::Element(be) => be.title(),
+        }
+    }
+
     /// Rust equivalent of C++ type returned by [`item_type_name`](crate::Branch::item_type_name)
     pub fn interpretation(&self) -> String {
         type_name_cpp_to_rust(self.item_type_name().as_str())
@@ -284,7 +291,7 @@ impl Branch {
     where
         T: UnmarshalerInto<Item = T> + 'a,
     {
-        self.get_basket(|r| r.read_object_into_with_name::<T>(&self.item_type_name_complete()).unwrap())
+        self.get_basket(|r| r.read_object_into_with_name::<T>(&self.item_type_name_complete(), &self.title()).unwrap())
     }
 
     pub(crate) fn _streamer_type(&self) -> Option<i32> {

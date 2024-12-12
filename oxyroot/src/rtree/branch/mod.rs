@@ -291,7 +291,7 @@ impl Branch {
     where
         T: UnmarshalerInto<Item = T> + 'a,
     {
-        self.get_basket(|r| r.read_object_into_with_name::<T>(&self.item_type_name_complete(), &self.title()).unwrap())
+        self.get_basket(|r| r.read_object_into_with_name::<T>(&self.item_type_name_complete()).unwrap())
     }
 
     pub(crate) fn _streamer_type(&self) -> Option<i32> {

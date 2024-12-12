@@ -56,7 +56,7 @@ pub trait StreamerInfoContext {
 pub trait Unmarshaler {
     fn unmarshal(&mut self, r: &mut RBuffer) -> Result<()>;
 
-    fn unmarshal_named(&mut self, r: &mut RBuffer, actual_type_name:&str, actual_title:&str) -> Result<()>{
+    fn unmarshal_named(&mut self, r: &mut RBuffer, actual_type_name:&str) -> Result<()>{
         self.unmarshal(r)
     }
 
@@ -487,7 +487,7 @@ where
 pub trait UnmarshalerInto {
     type Item: Default + Unmarshaler;
     fn unmarshal_into(r: &mut RBuffer) -> Result<Self::Item>;
-    fn unmarshal_into_with_name(r: &mut RBuffer, actual_type_name:&str, actual_title:&str) -> Result<Self::Item>;
+    fn unmarshal_into_with_name(r: &mut RBuffer, actual_type_name:&str) -> Result<Self::Item>;
     fn classe_name() -> Option<Vec<String>>;
 }
 
@@ -503,9 +503,9 @@ where
         Ok(a)
     }
 
-    fn unmarshal_into_with_name(r: &mut RBuffer, actual_name:&str, actual_title:&str) -> Result<Self::Item>{
+    fn unmarshal_into_with_name(r: &mut RBuffer, actual_name:&str) -> Result<Self::Item>{
         let mut a: Self::Item = Self::Item::default();
-        Unmarshaler::unmarshal_named(&mut a, r,actual_name, actual_title)?;
+        Unmarshaler::unmarshal_named(&mut a, r,actual_name)?;
         Ok(a)
     }
 
